@@ -3,9 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.microchip.mplab.runmyscript;
+package com.microchip.mplab.runthescript;
 
-import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
@@ -18,11 +17,11 @@ import org.openide.util.NbPreferences;
 
 @TopComponent.Description(
         preferredID = "panelTopComponent",
-        iconBase = "com/microchip/mplab/runmyscript/Actions-system-run-icon-48.png",
+        iconBase = "com/microchip/mplab/runthescript/Actions-system-run-icon-48.png",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "output", openAtStartup = false)
-@ActionID(category = "Window", id = "com.microchip.mplab.runmyscript.panelTopComponent")
+@ActionID(category = "Window", id = "com.microchip.mplab.runthescript.panelTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 
 @Messages({
@@ -32,19 +31,7 @@ import org.openide.util.NbPreferences;
 })
 
 public final class panelTopComponent extends TopComponent {
-
-    private final RunMyScriptOptionsPanelController controller;
-    
-    public panelTopComponent(RunMyScriptOptionsPanelController controller) {
-        this.controller = controller;
-        initComponents();
-        
-        initComponents();
-        setName(Bundle.CTL_panelTopComponent());
-        setToolTipText(Bundle.HINT_panelTopComponent());
-
-    }
-
+ 
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

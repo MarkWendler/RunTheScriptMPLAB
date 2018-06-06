@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.microchip.mplab.runmyscript;
+package com.microchip.mplab.runthescript;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,9 +11,6 @@ import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 
 import java.io.FileReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -26,19 +23,20 @@ import javax.script.*;
 import org.openide.cookies.EditorCookie;
 import org.openide.util.Exceptions;
 import org.openide.windows.IOProvider;
-import org.openide.windows.OutputWriter;
+import org.python.util.PythonInterpreter;
+import org.python.jsr223.PyScriptEngineFactory;
 
 @ActionID(
         category = "File",
-        id = "com.microchip.mplab.runmyscript.runMyScript"
+        id = "com.microchip.mplab.runthescript.runTheScript"
 )
 @ActionRegistration(
-        iconBase = "com/microchip/mplab/runmyscript/Actions-system-run-icon-16.png",
-        displayName = "#CTL_runMyScript"
+        iconBase = "com/microchip/mplab/runthescript/Actions-system-run-icon-24.png",
+        displayName = "#CTL_runTheScript"
 )
 @ActionReference(path = "Toolbars/File", position = 500)
-@Messages("CTL_runMyScript=runMyScript")
-public final class RunMyScript implements ActionListener {
+@Messages("CTL_runTheScript=runTheScript")
+public final class RunTheScript implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -56,24 +54,25 @@ public final class RunMyScript implements ActionListener {
         }
 
         // Get output window
-        InputOutput outputWindow = IOProvider.getDefault().getIO("Run My Script", false);
+        InputOutput outputWindow = IOProvider.getDefault().getIO("Run The Script", false);
         outputWindow.closeInputOutput();        
-        outputWindow = IOProvider.getDefault().getIO("Run My Script", true);
+        outputWindow = IOProvider.getDefault().getIO("Run The Script", true);
         
         outputWindow.select();
 
-        
+        //Find file type
         int i = currentFilePath.lastIndexOf('.');
         switch( currentFilePath.substring(i+1)){
             case "js":
                 // Run JAVA script
                 outputWindow.getOut().println("Starting javascript: " + currentFilePath);
-                run(outputWindow, currentFilePath,"javascript");
+                runJava(outputWindow, currentFilePath);
                 break;
             case "py":
             case "jy":
+                // Run python script
                 outputWindow.getOut().println("Starting jython script: " + currentFilePath);
-                run(outputWindow, currentFilePath,"python");
+                runJython(outputWindow, currentFilePath);
                 break;
             default:
                 outputWindow.getOut().println("File extension is not supported! Suported extensions: .js .py .jy");
@@ -81,13 +80,15 @@ public final class RunMyScript implements ActionListener {
 
     }
     
-    private void run(InputOutput ioWindow, String currentFilePath, String scriptType){
+    private void runJava(InputOutput ioWindow, String currentFilePath){
                 // Running Javascript
+                
         ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine engine = manager.getEngineByName(scriptType);  
+        ScriptEngine engine = manager.getEngineByName("nashorn");  
         
         if(engine == null){
-            ioWindow.getOut().println("Script engine not found! Script is not supported.");
+            ioWindow.getOut().println("Python script engine not found! Script is not supported.");
+            return;
         }
         
         //Binding the script engine with the output windows
@@ -99,11 +100,39 @@ public final class RunMyScript implements ActionListener {
             // evaluate JavaScript code
             engine.eval(new FileReader(currentFilePath));
         } catch (ScriptException ex) {
-            ioWindow.getOut().println("Jython runtime error!");
+            ioWindow.getOut().println("Runtime error! Check the following description:");
             ioWindow.getOut().println(ex);
         } catch (FileNotFoundException ex) {
             Exceptions.printStackTrace(ex);
         }
+       
+    }
+    
+    private void runJython(InputOutput ioWindow, String currentFilePath){
+                // Running Jython script
+                
+
+
+        
+        PythonInterpreter scriptInterpreter = new PythonInterpreter(); 
+        
+        if(scriptInterpreter == null){
+            ioWindow.getOut().println("Jython script engine not found! Script is not supported.");
+            return;
+        }
+        
+        //Binding the script engine with the output windows
+        scriptInterpreter.setErr(ioWindow.getOut());
+        scriptInterpreter.setOut(ioWindow.getErr());
+        
+        
+        try {
+            // evaluate JavaScript code
+            scriptInterpreter.execfile(currentFilePath);
+        } catch(Exception ex){
+            ioWindow.getOut().println("Runtime error! Check the following description:");
+            ioWindow.getOut().println(ex);
+        } 
        
     }
     

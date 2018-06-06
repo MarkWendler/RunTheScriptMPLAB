@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
 AutoUpdate-Show-In-Client: true
-OpenIDE-Module: com.microchip.mplab.runmyscrip
-OpenIDE-Module-Specification-Version: 1.0
-
+OpenIDE-Module: com.microchip.mplab.runthescript
+OpenIDE-Module-Implementation-Version: 8
+OpenIDE-Module-Localizing-Bundle: com/microchip/mplab/runthescript/Bundle.properties
