@@ -99,21 +99,14 @@ public final class RunTheScript implements ActionListener {
         try {
             // evaluate JavaScript code
             engine.eval(new FileReader(currentFilePath));
-        } catch (ScriptException ex) {
+        } catch (Exception ex) {
             ioWindow.getOut().println("Runtime error! Check the following description:");
             ioWindow.getOut().println(ex);
-        } catch (FileNotFoundException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-       
+        }  
     }
     
     private void runJython(InputOutput ioWindow, String currentFilePath){
                 // Running Jython script
-                
-
-
-        
         PythonInterpreter scriptInterpreter = new PythonInterpreter(); 
         
         if(scriptInterpreter == null){
