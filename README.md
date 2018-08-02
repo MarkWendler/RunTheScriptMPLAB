@@ -1,4 +1,4 @@
-## RunTheScriptMPLAB
+## RunTheScriptMPLAB  ([Releases](https://github.com/MarkWendler/RunTheScriptMPLAB/releases))
 
 This is a plugin developed for MPLAB X
 
