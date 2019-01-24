@@ -7,15 +7,6 @@
             <standalone/>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>com.microchip.mplab.nbide.embedded.makeproject</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                        <specification-version>1.4.1</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
                     <code-name-base>org.netbeans.core.ide</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -127,6 +118,10 @@
             <class-path-extension>
                 <runtime-relative-path>ext/jython-standalone-2.7.0.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jython-standalone-2.7.0.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jep-3.8.2.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jep-3.8.2.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

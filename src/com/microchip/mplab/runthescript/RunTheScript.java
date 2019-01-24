@@ -8,9 +8,10 @@ package com.microchip.mplab.runthescript;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import java.io.FileNotFoundException;
-
 import java.io.FileReader;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.StringTokenizer;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -20,11 +21,14 @@ import org.openide.loaders.DataObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.windows.InputOutput;
 import javax.script.*;
+import jep.Jep;
+import jep.JepConfig;
+import jep.JepException;
+import jep.PyConfig;
+import org.openide.awt.ActionReferences;
 import org.openide.cookies.EditorCookie;
-import org.openide.util.Exceptions;
 import org.openide.windows.IOProvider;
 import org.python.util.PythonInterpreter;
-import org.python.jsr223.PyScriptEngineFactory;
 
 @ActionID(
         category = "File",
@@ -32,10 +36,14 @@ import org.python.jsr223.PyScriptEngineFactory;
 )
 @ActionRegistration(
         iconBase = "com/microchip/mplab/runthescript/Actions-system-run-icon-24.png",
-        displayName = "#CTL_runTheScript"
+        displayName = "runTheScript"
 )
-@ActionReference(path = "Toolbars/File", position = 500)
-@Messages("CTL_runTheScript=runTheScript")
+@ActionReferences({
+    @ActionReference(path = "Toolbars/File", position = 500), //Add to buttons
+    @ActionReference(path = "Menu/Tools"),   //Add to tools menu
+     @ActionReference(path = "Editors/text/x-java/Popup")   //Add to file popup
+})
+
 public final class RunTheScript implements ActionListener {
 
     @Override
@@ -55,8 +63,6 @@ public final class RunTheScript implements ActionListener {
 
         // Get output window
         InputOutput outputWindow = IOProvider.getDefault().getIO("Run The Script", false);
-        outputWindow.closeInputOutput();        
-        outputWindow = IOProvider.getDefault().getIO("Run The Script", true);
         
         outputWindow.select();
 
@@ -69,6 +75,9 @@ public final class RunTheScript implements ActionListener {
                 runJava(outputWindow, currentFilePath);
                 break;
             case "py":
+                outputWindow.getOut().println("Starting pythonscript: " + currentFilePath);
+                runPython(outputWindow, currentFilePath);
+                
             case "jy":
                 // Run python script
                 outputWindow.getOut().println("Starting jython script: " + currentFilePath);
@@ -77,8 +86,49 @@ public final class RunTheScript implements ActionListener {
             default:
                 outputWindow.getOut().println("File extension is not supported! Suported extensions: .js .py .jy");
         }
-
     }
+
+    private void runPython(InputOutput ioWindow, String currentFilePath){
+                // Running Jython script
+                
+        System.setProperty("java.library.path", "C:\\Users\\Mark\\AppData\\Local\\Programs\\Python\\Python37-32\\Lib\\site-packages\\jep");
+                printLibPath(ioWindow); 
+        printClassPath(ioWindow);
+        
+        System.load("C:\\Users\\Mark\\AppData\\Local\\Programs\\Python\\Python37-32\\Lib\\site-packages\\jep\\jep.dll");
+        PyConfig conf = new PyConfig();
+        conf.setPythonHome("C:\\Users\\Mark\\AppData\\Local\\Programs\\Python\\Python37-32");   
+        
+        
+        JepConfig config = new JepConfig();
+        config.setRedirectOutputStreams(true);
+        
+
+        
+        Jep jepInterpreter = null;
+        try {
+            jepInterpreter = new Jep(config);
+        } catch (JepException ex) {
+            ioWindow.getOut().println("Python JEP not found! Try to set python path and install jep: https://github.com/ninia/jep/wiki");
+            return;
+        }
+            
+        //Binding the script engine with the output windows
+        //jepInterpreter.
+         //       setErr(ioWindow.getOut());
+        //scriptInterpreter.setOut(ioWindow.getErr());
+        
+        
+        try {
+            // evaluate JavaScript code
+            jepInterpreter.eval(currentFilePath);
+        } catch(Exception ex){
+            ioWindow.getOut().println("Runtime error! Check the following description:");
+            ioWindow.getOut().println(ex);
+        } 
+       
+    }
+
     
     private void runJava(InputOutput ioWindow, String currentFilePath){
                 // Running Javascript
@@ -129,5 +179,23 @@ public final class RunTheScript implements ActionListener {
        
     }
     
-    
+        public static void printClassPath(InputOutput ioWindow){
+
+
+        ClassLoader cl = ClassLoader.getSystemClassLoader();
+
+        URL[] urls = ((URLClassLoader)cl).getURLs();
+
+        for(URL url: urls){
+        	ioWindow.getOut().println(url.getFile());
+        }
+    }
+    public static void printLibPath(InputOutput ioWindow){
+        
+        String property = System.getProperty("java.library.path");
+        StringTokenizer parser = new StringTokenizer(property, ";");
+        while (parser.hasMoreTokens()) {
+            ioWindow.getOut().println(parser.nextToken());
+        }
+    }
 }
