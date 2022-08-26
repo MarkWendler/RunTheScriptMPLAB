@@ -44,6 +44,7 @@ import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.windows.IOProvider;
 import org.python.util.PythonInterpreter;
+import com.microchip.mplab.mdbcore.symbolview.interfaces.SymbolViewProvider;
 
 @ActionID(
         category = "File",
@@ -113,23 +114,30 @@ public final class RunTheScript implements ActionListener {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         JepConfig config = new JepConfig();
         config.redirectStdout(stream);
-        
+        try {
+            SharedInterpreter.setConfig(config);
+        }
+        catch(jep.JepException ex){
+            //ioWindow.getErr().println("Shared interpreter already created. Does not set config again.");
+            // make silent if the config is set already.
+        }
 
         //Binding the script engine with the output windows
         //jepInterpreter.
         //       setErr(ioWindow.getOut());
         //scriptInterpreter.setOut(ioWindow.getErr());
         ioWindow.getOut().println("File: " + currentFilePath);
-        try (Interpreter interp = new SubInterpreter(config);) {
+        try (Interpreter interp = new SharedInterpreter()) {
             // evaluate JavaScript code
+            
             interp.runScript(currentFilePath);
             stream.flush();
             ioWindow.getOut().print(stream.toString());
             stream.reset();
             interp.close();
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             ioWindow.getErr().println("Runtime error! Check the following description:");
-            ioWindow.getErr().println(ex.toString());
+            ioWindow.getErr().println(ex.getMessage());
         }
         
 
